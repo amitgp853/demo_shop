@@ -7,8 +7,14 @@ class GetProductList extends ProductListEvent {
   final int limit;
   final String? category;
   final String searchString;
+  final bool checkReachMax;
+  final bool refreshCalled;
   GetProductList(
-      {required this.limit, this.category, required this.searchString});
+      {required this.limit,
+      this.category,
+      required this.searchString,
+      this.refreshCalled = false,
+      this.checkReachMax = false});
 }
 
 class GetCategoryList extends ProductListEvent {}

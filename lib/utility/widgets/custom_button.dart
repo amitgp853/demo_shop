@@ -5,19 +5,22 @@ class CustomButton extends StatelessWidget {
   final String text;
   final double? textSize;
   final bool isLoading;
+  final bool isOutline;
   const CustomButton(
       {Key? key,
       required this.onPress,
       required this.text,
       this.textSize,
+      this.isOutline = false,
       this.isLoading = false})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialButton(
-      color: Theme.of(context).primaryColor,
+      color: isOutline ? Colors.white : Theme.of(context).primaryColor,
       height: 20,
+      elevation: 0,
       minWidth: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
@@ -27,7 +30,10 @@ class CustomButton extends StatelessWidget {
       child: !isLoading
           ? Text(
               text,
-              style: TextStyle(color: Colors.white, fontSize: textSize ?? 20),
+              style: TextStyle(
+                  color:
+                      isOutline ? Theme.of(context).primaryColor : Colors.white,
+                  fontSize: textSize ?? 20),
             )
           : const SizedBox(
               height: 30,

@@ -1,9 +1,17 @@
 import 'package:demo_shop/services/routing/router.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'constants/theme_constants.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  //initialize hive
+  await Hive.initFlutter();
+
+  //open the box
+  await Hive.openBox('cart_products');
   runApp(const MyApp());
 }
 

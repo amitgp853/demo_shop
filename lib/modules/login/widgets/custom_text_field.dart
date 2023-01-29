@@ -6,6 +6,7 @@ import '../../../utility/widgets/sized_box_widgets.dart';
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final void Function(String)? onSubmitted;
+  final void Function()? onEditingComplete;
   final void Function(String)? onChanged;
   final String? labelText;
   final String hintText;
@@ -14,6 +15,7 @@ class CustomTextField extends StatelessWidget {
       required this.controller,
       this.onSubmitted,
       this.onChanged,
+      this.onEditingComplete,
       required this.hintText,
       this.labelText})
       : super(key: key);
@@ -37,9 +39,13 @@ class CustomTextField extends StatelessWidget {
             }
             return null;
           },
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autofocus: false,
+          autovalidateMode:
+              labelText != null ? AutovalidateMode.onUserInteraction : null,
           onFieldSubmitted: onSubmitted,
           onChanged: onChanged,
+          onEditingComplete: onEditingComplete,
+          cursorColor: primaryColor,
           decoration: InputDecoration(
               isDense: labelText != null ? false : true,
               fillColor: Colors.white,
@@ -47,14 +53,16 @@ class CustomTextField extends StatelessWidget {
               enabledBorder: borderOutline(),
               focusedBorder: borderOutline(),
               errorBorder: borderOutline(),
-              suffixIcon: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.0),
-                child: Icon(
-                  Icons.search_rounded,
-                  color: primaryColor,
-                  size: 22,
-                ),
-              ),
+              suffixIcon: labelText != null
+                  ? null
+                  : const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Icon(
+                        Icons.search_rounded,
+                        color: primaryColor,
+                        size: 22,
+                      ),
+                    ),
               suffixIconConstraints: const BoxConstraints(maxHeight: 20),
               focusedErrorBorder: borderOutline(),
               hintText: hintText,

@@ -51,4 +51,16 @@ class ProductRepo {
         .toList();
     return productDmList;
   }
+
+  bool newProductLength(
+      {required List<ProductDm> newProductList,
+      required List<ProductDm> oldProductList}) {
+    int length = newProductList.length - oldProductList.length;
+    bool reachMax = false;
+    if (length < 6) {
+      reachMax = true;
+    }
+
+    return reachMax;
+  }
 }

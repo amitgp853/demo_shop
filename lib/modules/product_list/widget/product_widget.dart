@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../models/product_dm.dart';
+import '../../../utility/widgets/sized_box_widgets.dart';
 
 class ProductWidget extends StatelessWidget {
   final ProductDm productDm;
@@ -38,28 +39,21 @@ class ProductWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 16,
-              ),
+              size16H,
               Text(
                 productDm.title ?? '',
                 overflow: TextOverflow.ellipsis,
                 style:
                     const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              size12H,
               Text(
                 productDm.description ?? '',
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                style: const TextStyle(fontSize: 12),
               ),
-              const SizedBox(
-                height: 16,
-              ),
+              size16H,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

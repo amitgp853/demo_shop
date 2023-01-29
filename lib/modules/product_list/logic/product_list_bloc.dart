@@ -11,19 +11,34 @@ part 'product_list_state.dart';
 class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
   final ProductRepo productRepo = ProductRepo();
   List<ProductDm> productList = [];
+  bool notReachedMax = false;
 
   ProductListBloc() : super(ProductListInitial()) {
     on<GetProductList>((event, emit) async {
-      emit(ProductListLoading());
-      try {
-        productList = await productRepo.fetchProductList(
-            limit: event.limit, category: event.category);
-        List<ProductDm> productDmList = productRepo.searchProducts(
-            productList: productList, searchText: event.searchString);
-        emit(ProductListLoaded(productList: productDmList));
-      } catch (e) {
-        debugPrint('Error while fetching products: ${e.toString()}');
-        emit(ProductListFailed());
+      if (!event.checkReachMax) {
+        notReachedMax = true;
+      }
+      if (notReachedMax) {
+        emit(ProductListLoading());
+        try {
+          List<ProductDm> newProductList = await productRepo.fetchProductList(
+              limit: event.limit, category: event.category);
+          if (productRepo.newProductLength(
+                  newProductList: newProductList,
+                  oldProductList: productList) &&
+              !event.refreshCalled) {
+            notReachedMax = false;
+          } else {
+            notReachedMax = true;
+          }
+          productList = newProductList;
+          List<ProductDm> productDmList = productRepo.searchProducts(
+              productList: productList, searchText: event.searchString);
+          emit(ProductListLoaded(productList: productDmList));
+        } catch (e) {
+          debugPrint('Error while fetching products: ${e.toString()}');
+          emit(ProductListFailed());
+        }
       }
     });
     on<GetCategoryList>((event, emit) async {

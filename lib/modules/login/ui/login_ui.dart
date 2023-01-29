@@ -22,17 +22,17 @@ class LoginUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      resizeToAvoidBottomInset: false,
+      // resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          shrinkWrap: true,
           children: [
-            size52H,
+            size46H,
             headerText(),
             loginGif(),
             formFields(),
-            size52H,
+            size46H,
             loginButton(),
           ],
         ),

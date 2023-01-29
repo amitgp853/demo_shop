@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../models/product_dm.dart';
+import '../../../utility/widgets/cart_icon_widget.dart';
 import '../widget/product_widget.dart';
 
 class ProductListUI extends StatefulWidget {
@@ -18,16 +19,20 @@ class ProductListUI extends StatefulWidget {
 class _ProductListUIState extends State<ProductListUI> {
   late final TextEditingController searchController;
   late final ProductListBloc productListBloc;
+  late final ScrollController scrollController;
   List<ProductDm> productList = [];
   List<String> categoryList = [];
   String selectedCategory = '';
   int limit = 6;
+  bool isFetching = false;
+  bool firstLoaded = false;
 
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
     productListBloc = ProductListBloc();
+    scrollController = ScrollController()..addListener(_scrollListener);
     productListBloc.add(GetCategoryList());
     productListBloc
         .add(GetProductList(limit: limit, searchString: searchController.text));
@@ -36,7 +41,25 @@ class _ProductListUIState extends State<ProductListUI> {
   @override
   void dispose() {
     productListBloc.close();
+    scrollController.removeListener(_scrollListener);
     super.dispose();
+  }
+
+  void _scrollListener() {
+    debugPrint(
+        'Scroll extent: ${scrollController.position.pixels >= (scrollController.position.maxScrollExtent - 20)}');
+    if (scrollController.position.pixels >=
+            (scrollController.position.maxScrollExtent - 10) &&
+        !isFetching &&
+        productListBloc.notReachedMax) {
+      isFetching = true;
+      limit = limit + 6;
+      productListBloc.add(GetProductList(
+          limit: limit,
+          category: selectedCategory,
+          searchString: searchController.text,
+          checkReachMax: true));
+    }
   }
 
   @override
@@ -50,25 +73,21 @@ class _ProductListUIState extends State<ProductListUI> {
             productListBloc.add(SearchProductFromList(searchString: val));
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_checkout_outlined,
-                color: Colors.white),
-            onPressed: () {
-              context.pushNamed('cart_list');
-            },
-          ),
-        ],
+        actions: [CartIconWidget()],
       ),
       backgroundColor: backgroundColor,
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: RefreshIndicator(
           onRefresh: () async {
+            limit = 6;
+            isFetching = false;
             productListBloc.add(GetProductList(
-                limit: limit,
-                category: selectedCategory,
-                searchString: searchController.text));
+              limit: limit,
+              category: selectedCategory,
+              searchString: searchController.text,
+              refreshCalled: true,
+            ));
           },
           color: Theme.of(context).primaryColor,
           backgroundColor: Theme.of(context).backgroundColor,
@@ -81,20 +100,31 @@ class _ProductListUIState extends State<ProductListUI> {
                 children: [
                   categoryListRow(),
                   Expanded(
-                    child: BlocBuilder(
+                    child: BlocConsumer(
                       bloc: productListBloc,
+                      listener: (context, state) {},
                       builder: (context, state) {
-                        if (state is ProductListLoading) {
-                          return showLoading();
-                        } else if (state is CategoryListLoaded) {
+                        if (state is CategoryListLoaded) {
                           categoryList = state.categoryList;
+                          if (!firstLoaded) {
+                            return showLoading();
+                          }
                         } else if (state is ProductListLoaded) {
                           productList = state.productList;
-                        } else if (state is ProductListFailed ||
-                            productList.isEmpty) {
+                          isFetching = false;
+                          firstLoaded = true;
+                        } else if (state is ProductListFailed) {
+                          isFetching = false;
+                          firstLoaded = true;
+                          return noProductFound();
+                        } else if (state is ProductListLoading && !isFetching) {
+                          return showLoading();
+                        } else if (productList.isEmpty) {
                           return noProductFound();
                         }
-                        return showProductList(productList: productList);
+                        return showProductList(
+                            productList: productList,
+                            showBottomLoader: isFetching);
                       },
                     ),
                   ),
@@ -124,25 +154,52 @@ class _ProductListUIState extends State<ProductListUI> {
     );
   }
 
-  Widget showProductList({required List<ProductDm> productList}) {
+  Widget showProductList(
+      {required List<ProductDm> productList, bool showBottomLoader = false}) {
+    print('Bottom loader shown: $showBottomLoader');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: GridView.builder(
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 200,
-              mainAxisExtent: 300,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10),
-          itemCount: productList.length,
-          itemBuilder: (context, index) {
-            return ProductWidget(
-              productDm: productList[index],
-              onTap: () {
-                context.pushNamed('product', extra: productList[index]);
-              },
-            );
-          }),
+      child: Column(
+        children: [
+          Flexible(
+            child: GridView.builder(
+                shrinkWrap: true,
+                controller: scrollController,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    mainAxisExtent: 300,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10),
+                itemCount: productList.length,
+                itemBuilder: (context, index) {
+                  return ProductWidget(
+                    productDm: productList[index],
+                    onTap: () {
+                      if (FocusScope.of(context).hasPrimaryFocus) {
+                        FocusScope.of(context).unfocus();
+                      }
+                      context.pushNamed('product', extra: productList[index]);
+                    },
+                  );
+                }),
+          ),
+          if (showBottomLoader)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              height: 50,
+              child: const Center(
+                child: SizedBox(
+                  height: 26,
+                  width: 26,
+                  child: CircularProgressIndicator(
+                    color: primaryColor,
+                    strokeWidth: 4,
+                  ),
+                ),
+              ),
+            )
+        ],
+      ),
     );
   }
 
@@ -181,16 +238,21 @@ class _ProductListUIState extends State<ProductListUI> {
       selectedColor: primaryColor,
       selected: isSelected,
       onSelected: (bool value) {
+        limit = 6;
         if (!isSelected) {
           selectedCategory = name;
           productListBloc.add(GetProductList(
-              limit: limit,
-              category: name,
-              searchString: searchController.text));
+            limit: limit,
+            category: name,
+            searchString: searchController.text,
+            refreshCalled: true,
+          ));
         } else {
           selectedCategory = '';
           productListBloc.add(GetProductList(
-              limit: limit, searchString: searchController.text));
+              limit: limit,
+              searchString: searchController.text,
+              refreshCalled: true));
         }
       },
     );
