@@ -12,14 +12,12 @@ class NetworkCall {
       contentType: contentType,
     ));
 
-    if (!kReleaseMode) {
-      dio.interceptors.add(LogInterceptor(
-          requestBody: true,
-          responseBody: true,
-          request: true,
-          requestHeader: true,
-          responseHeader: true));
-    }
+    dio.interceptors.add(LogInterceptor(
+        requestBody: !kReleaseMode,
+        responseBody: !kReleaseMode,
+        request: !kReleaseMode,
+        requestHeader: !kReleaseMode,
+        responseHeader: !kReleaseMode));
     return dio;
   }
 }

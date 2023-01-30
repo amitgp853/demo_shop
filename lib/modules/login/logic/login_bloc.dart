@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
+import 'package:demo_shop/services/singleton/user_singleton.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../../../constants/string_constants.dart';
+import '../../../models/user_dm.dart';
 import '../repository/login_repo.dart';
 
 part 'login_event.dart';
@@ -15,8 +17,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginWithUsername>((event, emit) async {
       emit(LoginLoading());
       try {
+        //to call the login
         await loginRepo.login(
             username: event.username, password: event.password);
+
+        //to get the current user details
+        UserDm userDm = await loginRepo.getCurrentUser(
+            username: event.username, password: event.password);
+
+        //save user details in singleton
+        UserSingleton.setCurrentUserDm(userDm);
+
         emit(LoginSuccess());
       } on UsernamePasswordNotCorrect {
         emit(LoginFailed(errorMessage: usernamePasswordIncorrect));

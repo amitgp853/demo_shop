@@ -9,6 +9,7 @@ const String usernameKey = 'username';
 const String passwordKey = 'password';
 const String responseUsernamePasswordIncorrect =
     'username or password is incorrect';
+const String usersPath = 'users';
 
 //product
 const String productPath = 'products';
