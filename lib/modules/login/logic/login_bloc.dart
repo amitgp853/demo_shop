@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:demo_shop/services/singleton/user_singleton.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 import '../../../constants/string_constants.dart';
 import '../../../models/user_dm.dart';
@@ -29,8 +28,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         UserSingleton.setCurrentUserDm(userDm);
 
         emit(LoginSuccess());
-      } on UsernamePasswordNotCorrect {
-        emit(LoginFailed(errorMessage: usernamePasswordIncorrect));
       } on ErrorWhileLogin {
         emit(LoginFailed(errorMessage: errorOccurredWhileLogin));
       } catch (e) {

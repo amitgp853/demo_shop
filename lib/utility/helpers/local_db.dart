@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../constants/string_constants.dart';
 import '../../models/product_dm.dart';
 
 class LocalDb {
   //Initialize the instance for hive box
-  var myBox = Hive.box('cart_products');
+  var myBox = Hive.box(dbName);
 
   //Method for writing data in the database
   void writeData(ProductDm productDm, int userId) {

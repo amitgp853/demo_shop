@@ -104,6 +104,7 @@ class _ProductListUIState extends State<ProductListUI> {
                       bloc: productListBloc,
                       listener: (context, state) {},
                       builder: (context, state) {
+                        print('State is $state');
                         if (state is CategoryListLoaded) {
                           categoryList = state.categoryList;
                           if (!firstLoaded) {
@@ -113,14 +114,15 @@ class _ProductListUIState extends State<ProductListUI> {
                           productList = state.productList;
                           isFetching = false;
                           firstLoaded = true;
+                          if (productList.isEmpty) {
+                            return noProductFoundWidget();
+                          }
                         } else if (state is ProductListFailed) {
                           isFetching = false;
                           firstLoaded = true;
                           return noProductFoundWidget();
                         } else if (state is ProductListLoading && !isFetching) {
                           return showLoading();
-                        } else if (productList.isEmpty) {
-                          return noProductFoundWidget();
                         }
                         return showProductList(
                             productList: productList,
@@ -166,7 +168,7 @@ class _ProductListUIState extends State<ProductListUI> {
                 controller: scrollController,
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 200,
-                    mainAxisExtent: 300,
+                    mainAxisExtent: 290,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10),
                 itemCount: productList.length,

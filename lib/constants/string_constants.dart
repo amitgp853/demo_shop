@@ -32,3 +32,6 @@ const String cart = 'Cart';
 const String noProductInCart = 'No Product In Cart';
 const String totalPrice = 'Total Price: ';
 const String removeFromCart = 'Remove From Cart';
+
+//database name for cart
+String dbName = 'cart_products';

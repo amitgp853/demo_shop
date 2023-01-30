@@ -6,8 +6,6 @@ import '../../../models/user_dm.dart';
 
 class ErrorWhileLogin implements Exception {}
 
-class UsernamePasswordNotCorrect implements Exception {}
-
 class LoginRepo {
   //function for login by api call
   Future<void> login(
@@ -17,10 +15,6 @@ class LoginRepo {
       await netCall.post(loginPath, data: {
         usernameKey: username,
         passwordKey: password,
-      }).then((response) {
-        if (response.data.toString() == responseUsernamePasswordIncorrect) {
-          throw UsernamePasswordNotCorrect();
-        }
       });
     } catch (e) {
       throw ErrorWhileLogin();

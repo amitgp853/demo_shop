@@ -2,6 +2,7 @@ import 'package:demo_shop/services/routing/router.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'constants/string_constants.dart';
 import 'constants/theme_constants.dart';
 
 void main() async {
@@ -11,7 +12,7 @@ void main() async {
   await Hive.initFlutter();
 
   //open the box
-  await Hive.openBox('cart_products');
+  await Hive.openBox(dbName);
   runApp(const MyApp());
 }
 
