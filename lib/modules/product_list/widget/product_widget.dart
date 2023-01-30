@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 
+import '../../../constants/string_constants.dart';
 import '../../../models/product_dm.dart';
 import '../../../utility/widgets/sized_box_widgets.dart';
 
@@ -23,53 +23,62 @@ class ProductWidget extends StatelessWidget {
               color: Colors.white, borderRadius: BorderRadius.circular(10)),
           child: Column(
             children: [
-              Hero(
-                tag: '${productDm.id}',
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: CachedNetworkImage(
-                    imageUrl: productDm.image!,
-                    height: 120,
-                    fit: BoxFit.fitHeight,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey[300] ?? Colors.white,
-                      highlightColor: Colors.grey[100] ?? Colors.white,
-                      child: Container(),
-                    ),
-                  ),
-                ),
-              ),
+              productImage(),
               size16H,
-              Text(
-                productDm.title ?? '',
-                overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-              ),
+              productTitle(),
               size12H,
-              Text(
-                productDm.description ?? '',
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12),
-              ),
+              productDescription(),
               size16H,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'Price: \$${productDm.price}',
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
-              )
+              getPriceRow(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget productImage() {
+    return Hero(
+      tag: '${productDm.id}',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.0),
+        child: CachedNetworkImage(
+          imageUrl: productDm.image!,
+          height: 120,
+          fit: BoxFit.fitHeight,
+          placeholder: (context, url) => Container(),
+        ),
+      ),
+    );
+  }
+
+  Widget productTitle() {
+    return Text(
+      productDm.title ?? '',
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+    );
+  }
+
+  Widget productDescription() {
+    return Text(
+      productDm.description ?? '',
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 12),
+    );
+  }
+
+  Widget getPriceRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          '$price\$${productDm.price}',
+          style: const TextStyle(
+              color: Colors.black, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 }

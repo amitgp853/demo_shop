@@ -17,7 +17,7 @@ class CartProductsBloc extends Bloc<CartProductsEvent, CartProductsState> {
     on<GetCartProducts>((event, emit) async {
       emit(CartProductsLoading());
       try {
-        cartProducts = await cartProductRepo.getCartProducts();
+        cartProducts = cartProductRepo.getCartProducts();
         emit(CartProductsLoaded(cartProducts: cartProducts));
       } catch (e) {
         debugPrint('Error while getting cart products: ${e.toString()}');
@@ -28,8 +28,8 @@ class CartProductsBloc extends Bloc<CartProductsEvent, CartProductsState> {
     on<RemoveFromCart>((event, emit) async {
       emit(CartProductsLoading());
       try {
-        await cartProductRepo.deleteFromCart(productDm: event.productDm);
-        cartProducts = await cartProductRepo.getCartProducts();
+        cartProductRepo.deleteFromCart(productDm: event.productDm);
+        cartProducts = cartProductRepo.getCartProducts();
         emit(CartProductsLoaded(cartProducts: cartProducts));
       } catch (e) {
         debugPrint('Error while removing cart products: ${e.toString()}');

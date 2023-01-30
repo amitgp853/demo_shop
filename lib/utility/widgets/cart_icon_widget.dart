@@ -1,4 +1,5 @@
 import 'package:badges/badges.dart' as badges;
+import 'package:demo_shop/services/routing/routing_constants.dart';
 import 'package:demo_shop/utility/helpers/local_db.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +27,7 @@ class CartIconWidget extends StatelessWidget {
                 icon: const Icon(Icons.shopping_cart_checkout_outlined,
                     color: Colors.white),
                 onPressed: () {
-                  context.pushNamed('cart_list');
+                  context.pushNamed(cartListScreenName);
                 },
               ),
             ),

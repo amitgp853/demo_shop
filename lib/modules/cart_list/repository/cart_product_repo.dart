@@ -4,20 +4,20 @@ import '../../../utility/helpers/local_db.dart';
 class CartProductRepo {
   LocalDb localDb = LocalDb();
 
-  Future<List<ProductDm>> getCartProducts() async {
-    List<ProductDm> productDmList = await localDb.getData();
+  List<ProductDm> getCartProducts() {
+    List<ProductDm> productDmList = localDb.getData();
     return productDmList;
   }
 
-  Future<void> addToCart({required ProductDm productDm}) async {
-    await localDb.writeData(productDm);
+  void addToCart({required ProductDm productDm}) {
+    localDb.writeData(productDm);
   }
 
   bool checkIfAdded({required ProductDm productDm}) {
     return localDb.checkIfPresent(productDm);
   }
 
-  Future<void> deleteFromCart({required ProductDm productDm}) async {
-    await localDb.delete(productDm);
+  void deleteFromCart({required ProductDm productDm}) {
+    localDb.delete(productDm);
   }
 }

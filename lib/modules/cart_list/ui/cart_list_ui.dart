@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../constants/color_constants.dart';
+import '../../../constants/string_constants.dart';
 import '../../../models/product_dm.dart';
 import '../../../utility/widgets/sized_box_widgets.dart';
 import '../widget/cart_product_widget.dart';
@@ -15,14 +16,22 @@ class CartListUI extends StatefulWidget {
 }
 
 class _CartListUIState extends State<CartListUI> {
-  CartProductsBloc cartProductsBloc = CartProductsBloc();
+  late final CartProductsBloc cartProductsBloc;
 
+  //list of cart product shown
   List<ProductDm> cartProducts = [];
 
   @override
   void initState() {
     super.initState();
+    cartProductsBloc = CartProductsBloc();
     cartProductsBloc.add(GetCartProducts());
+  }
+
+  @override
+  void dispose() {
+    cartProductsBloc.close();
+    super.dispose();
   }
 
   @override
@@ -32,7 +41,7 @@ class _CartListUIState extends State<CartListUI> {
         leading: const BackButton(
           color: Colors.white,
         ),
-        title: const Text('Cart'),
+        title: const Text(cart),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: backgroundColor,
@@ -57,7 +66,7 @@ class _CartListUIState extends State<CartListUI> {
   Widget noProductFound() {
     return const Center(
       child: Text(
-        'No Product In Cart',
+        noProductInCart,
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     );
@@ -95,7 +104,7 @@ class _CartListUIState extends State<CartListUI> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           const Text(
-            'Total Price:',
+            totalPrice,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           size6W,
@@ -107,7 +116,8 @@ class _CartListUIState extends State<CartListUI> {
     );
   }
 
-  getTotalPrice({required List<ProductDm> productList}) {
+  //to get the total price that is sum of all the products in cart
+  String getTotalPrice({required List<ProductDm> productList}) {
     num sum = 0;
     for (var product in productList) {
       sum = sum + product.price!;

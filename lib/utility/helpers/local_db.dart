@@ -4,17 +4,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../models/product_dm.dart';
 
 class LocalDb {
+  //Initialize the instance for hive box
   var myBox = Hive.box('cart_products');
 
-  Future<void> initializeHive() async {
-    //initialize hive
-    Hive.initFlutter();
-
-    //open the box
-    await Hive.openBox('cart_products');
-  }
-
-  writeData(ProductDm productDm) {
+  //Method for writing data in the database
+  void writeData(ProductDm productDm) {
     myBox.put(productDm.id, [
       productDm.id,
       productDm.title,
@@ -24,7 +18,8 @@ class LocalDb {
     ]);
   }
 
-  getData() {
+  //Method to get the list of entries in database
+  List<ProductDm> getData() {
     debugPrint('Length of products: ${myBox.length}');
     List<ProductDm> productDmList = [];
     for (var value in myBox.values) {
@@ -38,21 +33,25 @@ class LocalDb {
     return productDmList;
   }
 
+  //Method to check if the key is present in database
   bool checkIfPresent(ProductDm productDm) {
     bool isPresent = myBox.containsKey(productDm.id);
     debugPrint('Check present ${productDm.id} $isPresent');
     return isPresent;
   }
 
+  //Method to get the length of database
   int dbLength() {
     return myBox.values.length;
   }
 
+  //Method to get the stream to regularly listen to changes in database
   Stream changesInDB() {
     return myBox.watch();
   }
 
-  delete(ProductDm productDm) {
+  //Method to delete the entry from the database
+  void delete(ProductDm productDm) {
     myBox.delete(productDm.id);
     debugPrint('Product deleted with id: ${productDm.id}');
   }

@@ -1,10 +1,12 @@
 import 'package:demo_shop/constants/color_constants.dart';
 import 'package:demo_shop/modules/login/widgets/custom_text_field.dart';
 import 'package:demo_shop/modules/product_list/logic/product_list_bloc.dart';
+import 'package:demo_shop/services/routing/routing_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../constants/string_constants.dart';
 import '../../../models/product_dm.dart';
 import '../../../utility/widgets/cart_icon_widget.dart';
 import '../widget/product_widget.dart';
@@ -20,11 +22,23 @@ class _ProductListUIState extends State<ProductListUI> {
   late final TextEditingController searchController;
   late final ProductListBloc productListBloc;
   late final ScrollController scrollController;
+
+  //product list shown
   List<ProductDm> productList = [];
+
+  //category list shown
   List<String> categoryList = [];
+
+  //the current selected category
   String selectedCategory = '';
+
+  //value of limit send during fetching list
   int limit = 6;
+
+  //flag to show the bottom loader in product list
   bool isFetching = false;
+
+  //flag to check if first loading done
   bool firstLoaded = false;
 
   @override
@@ -41,25 +55,9 @@ class _ProductListUIState extends State<ProductListUI> {
   @override
   void dispose() {
     productListBloc.close();
+    searchController.dispose();
     scrollController.removeListener(_scrollListener);
     super.dispose();
-  }
-
-  void _scrollListener() {
-    debugPrint(
-        'Scroll extent: ${scrollController.position.pixels >= (scrollController.position.maxScrollExtent - 20)}');
-    if (scrollController.position.pixels >=
-            (scrollController.position.maxScrollExtent - 10) &&
-        !isFetching &&
-        productListBloc.notReachedMax) {
-      isFetching = true;
-      limit = limit + 6;
-      productListBloc.add(GetProductList(
-          limit: limit,
-          category: selectedCategory,
-          searchString: searchController.text,
-          checkReachMax: true));
-    }
   }
 
   @override
@@ -68,11 +66,12 @@ class _ProductListUIState extends State<ProductListUI> {
       appBar: AppBar(
         title: CustomTextField(
           controller: searchController,
-          hintText: 'Search',
+          hintText: searchProduct,
           onChanged: (val) {
             productListBloc.add(SearchProductFromList(searchString: val));
           },
         ),
+        centerTitle: false,
         actions: [CartIconWidget()],
       ),
       backgroundColor: backgroundColor,
@@ -80,6 +79,7 @@ class _ProductListUIState extends State<ProductListUI> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: RefreshIndicator(
           onRefresh: () async {
+            //update the limit back to 6 to get refresh list
             limit = 6;
             isFetching = false;
             productListBloc.add(GetProductList(
@@ -116,11 +116,11 @@ class _ProductListUIState extends State<ProductListUI> {
                         } else if (state is ProductListFailed) {
                           isFetching = false;
                           firstLoaded = true;
-                          return noProductFound();
+                          return noProductFoundWidget();
                         } else if (state is ProductListLoading && !isFetching) {
                           return showLoading();
                         } else if (productList.isEmpty) {
-                          return noProductFound();
+                          return noProductFoundWidget();
                         }
                         return showProductList(
                             productList: productList,
@@ -145,10 +145,10 @@ class _ProductListUIState extends State<ProductListUI> {
     );
   }
 
-  Widget noProductFound() {
+  Widget noProductFoundWidget() {
     return const Center(
       child: Text(
-        'No Product Found',
+        noProductFound,
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     );
@@ -156,7 +156,6 @@ class _ProductListUIState extends State<ProductListUI> {
 
   Widget showProductList(
       {required List<ProductDm> productList, bool showBottomLoader = false}) {
-    print('Bottom loader shown: $showBottomLoader');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -178,7 +177,8 @@ class _ProductListUIState extends State<ProductListUI> {
                       if (FocusScope.of(context).hasPrimaryFocus) {
                         FocusScope.of(context).unfocus();
                       }
-                      context.pushNamed('product', extra: productList[index]);
+                      context.pushNamed(productDetailScreenName,
+                          extra: productList[index]);
                     },
                   );
                 }),
@@ -256,5 +256,22 @@ class _ProductListUIState extends State<ProductListUI> {
         }
       },
     );
+  }
+
+  //method will be called whenever scroll controller listen
+  void _scrollListener() {
+    //called when scroll controller reach max
+    if (scrollController.position.pixels >=
+            (scrollController.position.maxScrollExtent - 10) &&
+        !isFetching &&
+        productListBloc.notReachedMax) {
+      isFetching = true;
+      limit = limit + 6;
+      productListBloc.add(GetProductList(
+          limit: limit,
+          category: selectedCategory,
+          searchString: searchController.text,
+          checkReachMax: true));
+    }
   }
 }

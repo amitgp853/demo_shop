@@ -1,11 +1,13 @@
 import 'package:demo_shop/constants/color_constants.dart';
 import 'package:demo_shop/modules/login/logic/login_bloc.dart';
+import 'package:demo_shop/services/routing/routing_constants.dart';
 import 'package:demo_shop/utility/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../constants/string_constants.dart';
 import '../../../utility/helpers/alerts.dart';
 import '../../../utility/widgets/sized_box_widgets.dart';
 import '../widgets/custom_text_field.dart';
@@ -22,7 +24,6 @@ class LoginUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      // resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         child: ListView(
@@ -42,14 +43,14 @@ class LoginUI extends StatelessWidget {
 
   Widget headerText() {
     return const Text(
-      "Login Here",
+      loginHere,
       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
     );
   }
 
   Widget loginGif() {
     return Center(
-      child: Lottie.asset('assets/lottie/login_gif.json',
+      child: Lottie.asset(loginGifPath,
           height: 160, fit: BoxFit.fill, repeat: false),
     );
   }
@@ -62,14 +63,14 @@ class LoginUI extends StatelessWidget {
         children: [
           CustomTextField(
             controller: usernameController,
-            hintText: 'Enter Your Username',
-            labelText: 'Username',
+            hintText: usernameHint,
+            labelText: username,
           ),
           size20H,
           CustomTextField(
             controller: passwordController,
-            hintText: 'Enter Password',
-            labelText: 'Password',
+            hintText: passwordHint,
+            labelText: password,
           )
         ],
       ),
@@ -81,8 +82,8 @@ class LoginUI extends StatelessWidget {
       bloc: loginBloc,
       listener: (context, state) {
         if (state is LoginSuccess) {
-          showSnackBar(context, message: 'Login Successfully');
-          context.goNamed('product_list');
+          showSnackBar(context, message: loginSuccessfully);
+          context.goNamed(productListScreenName);
         }
         if (state is LoginFailed) {
           showSnackBar(context, message: state.errorMessage, error: true);
@@ -90,7 +91,7 @@ class LoginUI extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is LoginLoading) {
-          return CustomButton(onPress: () {}, isLoading: true, text: 'Login');
+          return CustomButton(onPress: () {}, isLoading: true, text: login);
         }
 
         return CustomButton(
@@ -101,7 +102,7 @@ class LoginUI extends StatelessWidget {
                     username: usernameController.text.trim()));
               }
             },
-            text: 'Login');
+            text: login);
       },
     );
   }

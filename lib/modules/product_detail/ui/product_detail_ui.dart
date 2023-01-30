@@ -6,6 +6,7 @@ import 'package:demo_shop/utility/widgets/sized_box_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../constants/string_constants.dart';
 import '../../../models/product_dm.dart';
 import '../../../utility/helpers/local_db.dart';
 import '../../../utility/widgets/cart_icon_widget.dart';
@@ -20,20 +21,27 @@ class ProductDetailUI extends StatefulWidget {
 }
 
 class _ProductDetailUIState extends State<ProductDetailUI> {
-  final AddToCartBloc addToCartBloc = AddToCartBloc();
+  late final AddToCartBloc addToCartBloc;
   final LocalDb localDb = LocalDb();
 
   @override
   void initState() {
     super.initState();
+    addToCartBloc = AddToCartBloc();
     addToCartBloc.add(CheckIfAdded(productDm: widget.productDm));
+  }
+
+  @override
+  void dispose() {
+    addToCartBloc.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Detail'),
+        title: const Text(productDetail),
         leading: const BackButton(
           color: Colors.white,
         ),
@@ -100,7 +108,7 @@ class _ProductDetailUIState extends State<ProductDetailUI> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-                'Rating : ${widget.productDm.rating!.rate}/5 (${widget.productDm.rating!.count})',
+                '$rating${widget.productDm.rating!.rate}$outOfFive$openParenthesis${widget.productDm.rating!.count}$closeParenthesis',
                 textAlign: TextAlign.start,
                 style:
                     const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
@@ -112,7 +120,7 @@ class _ProductDetailUIState extends State<ProductDetailUI> {
               addToCartButton(),
               Expanded(
                 child: Text(
-                  'Price: \$${widget.productDm.price}',
+                  '$price\$${widget.productDm.price}',
                   textAlign: TextAlign.right,
                   style: const TextStyle(
                       color: Colors.red,
@@ -139,7 +147,7 @@ class _ProductDetailUIState extends State<ProductDetailUI> {
               if (state is AddedToCart) {
                 return CustomButton(
                   onPress: () {},
-                  text: 'Added To Cart',
+                  text: addedToCart,
                   textSize: 15,
                   isOutline: true,
                 );
@@ -148,7 +156,7 @@ class _ProductDetailUIState extends State<ProductDetailUI> {
                 onPress: () {
                   addToCartBloc.add(AddToCart(productDm: widget.productDm));
                 },
-                text: 'Add To Cart',
+                text: addToCart,
                 textSize: 15,
               );
             },
