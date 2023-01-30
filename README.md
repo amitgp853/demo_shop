@@ -1,6 +1,6 @@
 # demo_shop
 
-Flutter Project for Demo Shop
+Flutter Project for Demo Shop using FakeStore api to simulate real time Shopping app.
 
 ## Getting Started
 
