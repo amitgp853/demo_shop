@@ -104,7 +104,6 @@ class _ProductListUIState extends State<ProductListUI> {
                       bloc: productListBloc,
                       listener: (context, state) {},
                       builder: (context, state) {
-                        print('State is $state');
                         if (state is CategoryListLoaded) {
                           categoryList = state.categoryList;
                           if (!firstLoaded) {
